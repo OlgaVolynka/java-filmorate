@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
-public class filmControllerTest {
+public class FilmControllerTest {
     protected Film film = new Film();
     FilmController filmController = new FilmController();
 
@@ -26,7 +26,7 @@ public class filmControllerTest {
     }
 
     @Test
-    void Test1_addNewFilm() {
+    void test1_addNewFilm() {
         filmController.createFilm(film);
         List<Film> listFilm = filmController.findAll();
 
@@ -38,7 +38,7 @@ public class filmControllerTest {
     }
 
     @Test
-    void Test2_addNewFilmWithFailName() {
+    void test2_addNewFilmWithFailName() {
         film.setName("");
 
         ValidationException exFilm = assertThrows(ValidationException.class, new Executable() {
@@ -54,7 +54,7 @@ public class filmControllerTest {
     }
 
     @Test
-    void Test3_addNewFilmWithFaiDescription() {
+    void test3_addNewFilmWithFaiDescription() {
         film.setDescription("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" +
                 "++++++++++++++++++++++++++++++++++++++++++++++++++" + //50 символов
                 "++++++++++++++++++++++++++++++++++++++++++++++++++" +
@@ -73,7 +73,7 @@ public class filmControllerTest {
     }
 
     @Test
-    void Test4_addNewFilmWithFaiReleaseDate() {
+    void test4_addNewFilmWithFaiReleaseDate() {
         film.setReleaseDate(LocalDate.of(1894, 1, 1));
         ValidationException exFilm = assertThrows(ValidationException.class, new Executable() {
             @Override
@@ -89,7 +89,7 @@ public class filmControllerTest {
     }
 
     @Test
-    void Test5_addNewFilmWithFailDuration() {
+    void test5_addNewFilmWithFailDuration() {
         film.setDuration(-120);
         ValidationException exFilm = assertThrows(ValidationException.class, new Executable() {
             @Override
@@ -105,7 +105,7 @@ public class filmControllerTest {
     }
 
     @Test
-    void Test6_updateFilmWithFailId() {
+    void test6_updateFilmWithFailId() {
         filmController.createFilm(film);
         Film newFilm = new Film(0, "Социальные сети", "фильм о создании фэйсбук", LocalDate.of(2010, 11, 28), 125);
 

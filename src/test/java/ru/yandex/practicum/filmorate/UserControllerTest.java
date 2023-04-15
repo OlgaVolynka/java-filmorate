@@ -14,7 +14,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
-class userControllerTest {
+class UserControllerTest {
     protected User user = new User(0, "o_kyzina@mqil.ru", "1429644", "Olga", LocalDate.of(1987, 7, 17));
     UserController userController = new UserController();
 
@@ -25,7 +25,7 @@ class userControllerTest {
     }
 
     @Test
-    void Test1_addNewUser() {
+    void test1_addNewUser() {
         userController.create(user);
         List<User> listUser = userController.findAll();
 
@@ -37,7 +37,7 @@ class userControllerTest {
     }
 
     @Test
-    void Test2_addNewUserWithFailName() {
+    void test2_addNewUserWithFailName() {
         user.setName("");
         userController.create(user);
         List<User> listUser = userController.findAll();
@@ -47,7 +47,7 @@ class userControllerTest {
     }
 
     @Test
-    void Test3_addNewUserWithFaiLogin() {
+    void test3_addNewUserWithFaiLogin() {
         user.setLogin("");
 
         ValidationException exUser = assertThrows(ValidationException.class, new Executable() {
@@ -63,7 +63,7 @@ class userControllerTest {
     }
 
     @Test
-    void Test4_addNewUserWithFaiLogin() {
+    void test4_addNewUserWithFaiLogin() {
         user.setBirthday(LocalDate.now().plusYears(1));
 
         ValidationException exUser = assertThrows(ValidationException.class, new Executable() {
@@ -79,7 +79,7 @@ class userControllerTest {
     }
 
     @Test
-    void Test5_addNewUserWithFailEmail() {
+    void test5_addNewUserWithFailEmail() {
         user.setEmail("o_kyzina.mail.ru");
 
         ValidationException exUser = assertThrows(ValidationException.class, new Executable() {
@@ -104,7 +104,7 @@ class userControllerTest {
     }
 
     @Test
-    void Test6_addNewUserWithFaiLogin() {
+    void test6_addNewUserWithFaiLogin() {
         userController.create(user);
         User newUser = new User(0, "o_kyzina@mail.ru", "1429644", "Olga", LocalDate.of(1987, 7, 17));
 
