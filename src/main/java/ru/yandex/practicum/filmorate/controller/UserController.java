@@ -26,7 +26,7 @@ public class UserController {
         return new ArrayList<>(users.values());
     }
 
-    @PostMapping(value = "/user")
+    @PostMapping(value = "/users")
 
     public User create(@RequestBody User user) throws ValidationException {
         log.info("Получен запрос POST user");
@@ -48,7 +48,7 @@ public class UserController {
         }
     }
 
-    @PutMapping("/user")
+    @PutMapping("/users")
     public User updateUser(@RequestBody User user) throws ValidationException {
         log.info("Получен запрос PUT user");
         if (users.containsKey(user.getId())) {

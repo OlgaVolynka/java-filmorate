@@ -28,7 +28,7 @@ public class FilmController {
         return new ArrayList<>(films.values());
     }
 
-    @PostMapping(value = "/film")
+    @PostMapping(value = "/films")
     public Film createFilm(@RequestBody Film film) throws ValidationException {
 
         log.info("Получен запрос POST film");
@@ -51,7 +51,7 @@ public class FilmController {
         return film;
     }
 
-    @PutMapping("/film")
+    @PutMapping("/films")
     public Film updateFilm(@RequestBody Film film) throws ValidationException {
         log.info("Получен запрос PUT film");
         if (films.containsKey(film.getId())) {
