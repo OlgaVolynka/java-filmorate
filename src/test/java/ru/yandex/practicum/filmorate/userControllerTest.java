@@ -15,7 +15,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 class userControllerTest {
-
     protected User user = new User(0, "o_kyzina@mqil.ru", "1429644", "Olga", LocalDate.of(1987, 7, 17));
     UserController userController = new UserController();
 
