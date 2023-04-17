@@ -39,6 +39,7 @@ public class UserController {
             throw new ValidationException("дата рождения не может быть в будущем");
         } else if (user.getName().isBlank() || user.getName() == null) {
             user.setName(user.getLogin());
+            user.setId(countId());
             users.put(user.getId(), user);
             return user;
         } else {

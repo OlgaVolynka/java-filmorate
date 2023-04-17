@@ -44,11 +44,11 @@ public class FilmController {
         }
         if (film.getDuration() < 0) {
             throw new ValidationException("продолжительность фильма должна быть положительной");
+        } else {
+            film.setId(countId());
+            films.put(film.getId(), film);
+            return film;
         }
-
-        film.setId(countId());
-        films.put(film.getId(), film);
-        return film;
     }
 
     @PutMapping("/films")
