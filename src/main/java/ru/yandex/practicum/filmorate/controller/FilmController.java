@@ -15,7 +15,7 @@ import java.util.Map;
 public class FilmController {
 
     private Map<Long, Film> films = new HashMap<>();
-    public final static LocalDate MIN_DATA = LocalDate.of(1985, 12, 28);
+    public final LocalDate MIN_DATA = LocalDate.of(1985, 12, 28);
     long id = 0;
 
     private long countId() {
@@ -36,7 +36,6 @@ public class FilmController {
         film.setId(countId());
         films.put(film.getId(), film);
         return film;
-
     }
 
     @PutMapping("/films")
