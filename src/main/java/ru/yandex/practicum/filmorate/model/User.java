@@ -2,21 +2,32 @@ package ru.yandex.practicum.filmorate.model;
 
 import java.time.LocalDate;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 public class User {
-    protected int id;
+    protected long id;
     protected String email;
     protected String login;
     protected String name;
     protected LocalDate birthday;
 
-    public User(int id, String email, String login, String name, LocalDate birthday) {
+    public User(long id, String email, String login, String name, LocalDate birthday) {
         this.id = id;
         this.email = email;
         this.login = login;
         this.name = name;
         this.birthday = birthday;
     }
+
+    public User(long id, String email, String login, LocalDate birthday) {
+        this.id = id;
+        this.email = email;
+        this.login = login;
+        this.name = login;
+        this.birthday = birthday;
+    }
+
 }

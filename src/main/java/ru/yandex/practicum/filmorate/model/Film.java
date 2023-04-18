@@ -2,19 +2,21 @@ package ru.yandex.practicum.filmorate.model;
 
 import java.time.LocalDate;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
 
+@Getter
+@Setter
 public class Film {
 
-    protected int id;
+    protected long id;
     protected String name;
     protected String description;
     protected LocalDate releaseDate;
-    protected int duration;
+    protected long duration;
 
-    public Film(int id, String name, String description, LocalDate releaseDate, int duration) {
+    public Film(long id, String name, String description, LocalDate releaseDate, long duration) {
         this.id = id;
         this.name = name;
         this.description = description;
