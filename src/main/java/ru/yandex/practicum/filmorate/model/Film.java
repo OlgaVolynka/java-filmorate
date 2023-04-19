@@ -1,9 +1,10 @@
 package ru.yandex.practicum.filmorate.model;
 
-import java.time.LocalDate;
-
 import lombok.Getter;
 import lombok.Setter;
+import org.jetbrains.annotations.NotNull;
+
+import java.time.LocalDate;
 
 
 @Getter
@@ -11,7 +12,9 @@ import lombok.Setter;
 public class Film {
 
     protected long id;
+
     protected String name;
+
     protected String description;
     protected LocalDate releaseDate;
     protected long duration;

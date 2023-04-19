@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import ru.yandex.practicum.filmorate.model.Film;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,9 +15,9 @@ import java.util.Map;
 @Slf4j
 public class FilmController {
 
-    private Map<Long, Film> films = new HashMap<>();
+    private final Map<Long, Film> films = new HashMap<>();
     private static final LocalDate MIN_DATA = LocalDate.of(1985, 12, 28);
-    long id = 0;
+    private long id = 0;
 
     private long countId() {
         return ++id;
@@ -29,7 +30,7 @@ public class FilmController {
     }
 
     @PostMapping(value = "/films")
-    public Film createFilm(@RequestBody Film film) throws ValidationException {
+    public Film createFilm(@Valid @RequestBody Film film) {
         log.info("Получен запрос POST film");
 
         validate(film);
@@ -39,7 +40,7 @@ public class FilmController {
     }
 
     @PutMapping("/films")
-    public Film updateFilm(@RequestBody Film film) throws ValidationException {
+    public Film updateFilm(@RequestBody Film film)  {
         log.info("Получен запрос PUT film");
         if (films.containsKey(film.getId())) {
             validate(film);
@@ -48,7 +49,7 @@ public class FilmController {
         } else throw new ValidationException("фильма с данным id не существует");
     }
 
-    protected void validate(Film film) throws ValidationException {
+    protected void validate(Film film) {
         if (film.getName().isBlank() || film.getName() == null) {
             throw new ValidationException("название не может быть пустым");
         }

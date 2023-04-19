@@ -13,8 +13,8 @@ import java.util.Map;
 @RestController
 @Slf4j
 public class UserController {
-    private Map<Long, User> users = new HashMap<>();
-    long id = 0;
+    private final Map<Long, User> users = new HashMap<>();
+    private long id = 0;
 
     private long countId() {
         return ++id;
@@ -28,37 +28,39 @@ public class UserController {
 
     @PostMapping(value = "/users")
 
-    public User create(@RequestBody User user) throws ValidationException {
+    public User create(@RequestBody User user) {
         log.info("Получен запрос POST user");
 
-        User validateUser = validate(user);
-        validateUser.setId(countId());
-        users.put(validateUser.getId(), validateUser);
-        return validateUser;
+        validate(user);
+        if (user.getName().isBlank() || user.getName() == null) {
+            user.setName(user.getLogin());
+        }
+
+        user.setId(countId());
+        users.put(user.getId(), user);
+        return user;
     }
 
     @PutMapping("/users")
-    public User updateUser(@RequestBody User user) throws ValidationException {
+    public User updateUser(@RequestBody User user) {
         log.info("Получен запрос PUT user");
         if (users.containsKey(user.getId())) {
-            User validateUser = validate(user);
-            users.put(validateUser.getId(), validateUser);
-            return validateUser;
+            validate(user);
+            if (user.getName().isBlank() || user.getName() == null) {
+                user.setName(user.getLogin());
+            }
+            users.put(user.getId(), user);
+            return user;
         } else throw new ValidationException("пользователя с данным id не существует");
     }
 
-    protected User validate(User user) throws ValidationException {
+    protected void validate(User user) {
         if (user.getEmail().isBlank() || user.getEmail() == null || !user.getEmail().contains("@")) {
             throw new ValidationException("электронная почта не может быть пустой и должна содержать символ @");
         } else if (user.getLogin().isBlank() || user.getLogin() == null) {
             throw new ValidationException("логин не может быть пустым и содержать пробелы");
         } else if (user.getBirthday().isAfter(LocalDate.now())) {
             throw new ValidationException("дата рождения не может быть в будущем");
-        } else if (user.getName().isBlank() || user.getName() == null) {
-            user.setName(user.getLogin());
-            return user;
-        } else {
-            return user;
         }
     }
 }
