@@ -1,10 +1,11 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import ru.yandex.practicum.filmorate.model.User;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
+import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -16,7 +17,7 @@ public class UserController {
     private final Map<Long, User> users = new HashMap<>();
     private long id = 0;
 
-    private long countId() {
+    private Long countId() {
         return ++id;
     }
 
@@ -28,11 +29,11 @@ public class UserController {
 
     @PostMapping(value = "/users")
 
-    public User create(@RequestBody User user) {
+    public User create(@Valid @RequestBody User user) {
         log.info("Получен запрос POST user");
+        String name = user.getName();
 
-        validate(user);
-        if (user.getName().isBlank() || user.getName() == null) {
+        if (name == null || name.isBlank()) {
             user.setName(user.getLogin());
         }
 
@@ -42,25 +43,16 @@ public class UserController {
     }
 
     @PutMapping("/users")
-    public User updateUser(@RequestBody User user) {
+    public User updateUser(@Valid @RequestBody User user) {
         log.info("Получен запрос PUT user");
         if (users.containsKey(user.getId())) {
-            validate(user);
+
             if (user.getName().isBlank() || user.getName() == null) {
                 user.setName(user.getLogin());
             }
             users.put(user.getId(), user);
             return user;
-        } else throw new ValidationException("пользователя с данным id не существует");
-    }
-
-    protected void validate(User user) {
-        if (user.getEmail().isBlank() || user.getEmail() == null || !user.getEmail().contains("@")) {
-            throw new ValidationException("электронная почта не может быть пустой и должна содержать символ @");
-        } else if (user.getLogin().isBlank() || user.getLogin() == null) {
-            throw new ValidationException("логин не может быть пустым и содержать пробелы");
-        } else if (user.getBirthday().isAfter(LocalDate.now())) {
-            throw new ValidationException("дата рождения не может быть в будущем");
-        }
+        } else
+            throw new ValidationException(HttpStatus.INTERNAL_SERVER_ERROR, "пользователя с данным id не существует");
     }
 }

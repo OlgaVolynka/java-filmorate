@@ -8,21 +8,39 @@ import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.controller.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 public class FilmControllerTest {
-    protected Film film = new Film();
+    protected Film film = new Film("Социальные сети", "фильм о создании фэйсбук", LocalDate.of(2010, 11, 28), 120);
     FilmController filmController = new FilmController();
+    private Validator validator;
+
 
     @BeforeEach
     void init() {
-        film = new Film(0, "Социальные сети", "фильм о создании фэйсбук", LocalDate.of(2010, 11, 28), 120);
+        film = new Film("Социальные сети", "фильм о создании фэйсбук", LocalDate.of(2010, 11, 28), 120);
         filmController = new FilmController();
+        try (ValidatorFactory factory = Validation.buildDefaultValidatorFactory()) {
+            this.validator = factory.getValidator();
+        }
+    }
+
+    private List<String> getValidateErrorMsg(Film validFilm) {
+        Set<ConstraintViolation<Film>> violations = validator.validate(validFilm);
+        return violations
+                .stream()
+                .map(ConstraintViolation::getMessage)
+                .collect(Collectors.toList());
     }
 
     @Test
@@ -39,18 +57,13 @@ public class FilmControllerTest {
 
     @Test
     void test2_addNewFilmWithFailName() {
-        film.setName("");
+        film.setName(null);
+        Set<ConstraintViolation<Film>> violations = validator.validate(film);
+        List<String> massages = getValidateErrorMsg(film);
+        assertTrue(!violations.isEmpty(), "ошибка валидации при проверке класса");
 
-        ValidationException exFilm = assertThrows(ValidationException.class, new Executable() {
-            @Override
-            public void execute() throws Throwable {
-                filmController.createFilm(film);
-            }
-        });
-        List<Film> listFilm = filmController.findAll();
-
-        assertEquals(0, listFilm.size(), "Список Film не корректный");
-        assertEquals("название не может быть пустым", exFilm.getMessage(), "Проверка на пустое имя не проходит");
+        assertEquals(2, massages.size(), "Проверка на пустое имя не проходит");
+        assertTrue(massages.contains("название не может быть пустым"), "Неверное сообщение об ошибке");
     }
 
     @Test
@@ -59,17 +72,12 @@ public class FilmControllerTest {
                 "++++++++++++++++++++++++++++++++++++++++++++++++++" + //50 символов
                 "++++++++++++++++++++++++++++++++++++++++++++++++++" +
                 "++++++++++++++++++++++++++++++++++++++++++++++++++");
+        Set<ConstraintViolation<Film>> violations = validator.validate(film);
+        List<String> massages = getValidateErrorMsg(film);
+        assertTrue(!violations.isEmpty(), "ошибка валидации при проверке класса");
 
-        ValidationException exFilm = assertThrows(ValidationException.class, new Executable() {
-            @Override
-            public void execute() throws Throwable {
-                filmController.createFilm(film);
-            }
-        });
-        List<Film> listFilm = filmController.findAll();
-
-        assertEquals(0, listFilm.size(), "Список Film не корректный");
-        assertEquals("максимальная длина описания — 200 символов", exFilm.getMessage(), "Проверка на длину Description не проходит");
+        assertEquals(1, massages.size(), "Проверка на длину Description не проходит");
+        assertTrue(massages.contains("максимальная длина описания — 200 символов"), "Неверное сообщение об ошибке");
     }
 
     @Test
@@ -85,30 +93,27 @@ public class FilmControllerTest {
         List<Film> listFilm = filmController.findAll();
 
         assertEquals(0, listFilm.size(), "Список Film не корректный");
-        assertEquals("дата релиза — не раньше 28 декабря 1895 года", exFilm.getMessage(), "Проверка на дату релиза не проходит");
+        assertEquals("400 BAD_REQUEST \"дата релиза — не раньше 28 декабря 1895 года\"", exFilm.getMessage(), "Проверка на дату релиза не проходит");
     }
 
     @Test
     void test5_addNewFilmWithFailDuration() {
+
         film.setDuration(-120);
-        ValidationException exFilm = assertThrows(ValidationException.class, new Executable() {
-            @Override
-            public void execute() throws Throwable {
-                filmController.createFilm(film);
-            }
-        });
 
-        List<Film> listFilm = filmController.findAll();
+        Set<ConstraintViolation<Film>> violations = validator.validate(film);
+        List<String> massages = getValidateErrorMsg(film);
+        assertTrue(!violations.isEmpty(), "продолжительность фильма должна быть положительной");
 
-        assertEquals(0, listFilm.size(), "Список Film не корректный");
-        assertEquals("продолжительность фильма должна быть положительной", exFilm.getMessage(), "Проверка на положительный Duration не проходит");
+        assertEquals(1, massages.size(), "Проверка на положительный Duration не проходит");
+        assertTrue(massages.contains("продолжительность фильма должна быть положительной"), "Неверное сообщение об ошибке");
     }
 
     @Test
     void test6_updateFilmWithFailId() {
         filmController.createFilm(film);
-        Film newFilm = new Film(0, "Социальные сети", "фильм о создании фэйсбук", LocalDate.of(2010, 11, 28), 125);
-
+        Film newFilm = new Film("Социальные сети", "фильм о создании фэйсбук", LocalDate.of(2010, 11, 28), 125);
+        newFilm.setId(120);
         ValidationException exFilm = assertThrows(ValidationException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
@@ -119,6 +124,6 @@ public class FilmControllerTest {
         List<Film> listFilm = filmController.findAll();
 
         assertEquals(1, listFilm.size(), "Список Film не корректный");
-        assertEquals("фильма с данным id не существует", exFilm.getMessage(), "не выбрасывается исключение при неправильном Id");
+        assertEquals("500 INTERNAL_SERVER_ERROR \"фильма с данным id не существует\"", exFilm.getMessage(), "не выбрасывается исключение при неправильном Id");
     }
 }

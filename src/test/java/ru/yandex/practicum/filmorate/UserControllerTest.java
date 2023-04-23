@@ -1,15 +1,21 @@
 package ru.yandex.practicum.filmorate;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
+import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.controller.UserController;
 import ru.yandex.practicum.filmorate.controller.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -17,12 +23,25 @@ import static org.junit.jupiter.api.Assertions.*;
 class UserControllerTest {
     protected User user = new User(0, "o_kyzina@mqil.ru", "1429644", "Olga", LocalDate.of(1987, 7, 17));
     UserController userController = new UserController();
+    private Validator validator;
 
     @BeforeEach
     void init() {
         user = new User(0, "o_kyzina@mqil.ru", "1429644", "Olga", LocalDate.of(1987, 7, 17));
         userController = new UserController();
+        try (ValidatorFactory factory = Validation.buildDefaultValidatorFactory()) {
+            this.validator = factory.getValidator();
+        }
     }
+
+    private List<String> getValidateErrorMsg(User validUser) {
+        Set<ConstraintViolation<User>> violations = validator.validate(validUser);
+        return violations
+                .stream()
+                .map(ConstraintViolation::getMessage)
+                .collect(Collectors.toList());
+    }
+
 
     @Test
     void test1_addNewUser() {
@@ -49,62 +68,39 @@ class UserControllerTest {
     @Test
     void test3_addNewUserWithFaiLogin() {
         user.setLogin("");
+        Set<ConstraintViolation<User>> violations = validator.validate(user);
+        List<String> massages = getValidateErrorMsg(user);
+        assertTrue(!violations.isEmpty(), "ошибка валидации при проверке класса");
 
-        ValidationException exUser = assertThrows(ValidationException.class, new Executable() {
-            @Override
-            public void execute() throws Throwable {
-                userController.create(user);
-            }
-        });
-        List<User> listUser = userController.findAll();
-
-        assertEquals(0, listUser.size(), "Список User не корректный");
-        assertEquals("логин не может быть пустым и содержать пробелы", exUser.getMessage(), "Проверка на пустой логин не проходит");
+        assertEquals(1, massages.size(), "Проверка не корректный логин не проходит");
+        assertTrue(massages.contains("логин не может быть пустым и содержать пробелы"), "Неверное сообщение об ошибке");
     }
 
     @Test
     void test4_addNewUserWithFaiLogin() {
         user.setBirthday(LocalDate.now().plusYears(1));
 
-        ValidationException exUser = assertThrows(ValidationException.class, new Executable() {
-            @Override
-            public void execute() throws Throwable {
-                userController.create(user);
-            }
-        });
-        List<User> listUser = userController.findAll();
+        Set<ConstraintViolation<User>> violations = validator.validate(user);
+        List<String> massages = getValidateErrorMsg(user);
+        assertTrue(!violations.isEmpty(), "ошибка валидации при проверке класса");
 
-        assertEquals(0, listUser.size(), "Список User не корректный");
-        assertEquals("дата рождения не может быть в будущем", exUser.getMessage(), "Проверка на дату рождения не проходит");
+        assertEquals(1, massages.size(), "Проверка даты рождения не проходит");
+        assertTrue(massages.contains("дата рождения не может быть в будущем"), "Неверное сообщение об ошибке");
     }
 
     @Test
     void test5_addNewUserWithFailEmail() {
-        user.setEmail("o_kyzina.mail.ru");
+        user.setEmail("o_kyzina.mail.ru@");
+        Set<ConstraintViolation<User>> violations = validator.validate(user);
+        List<String> massages = getValidateErrorMsg(user);
+        assertTrue(!violations.isEmpty(), "ошибка валидации при проверке класса");
 
-        ValidationException exUser = assertThrows(ValidationException.class, new Executable() {
-            @Override
-            public void execute() throws Throwable {
-                userController.create(user);
-            }
-        });
-
-        user.setEmail("");
-        ValidationException exUser2 = assertThrows(ValidationException.class, new Executable() {
-            @Override
-            public void execute() throws Throwable {
-                userController.create(user);
-            }
-        });
-        List<User> listUser = userController.findAll();
-
-        assertEquals(0, listUser.size(), "Список User не корректный");
-        assertEquals("электронная почта не может быть пустой и должна содержать символ @", exUser.getMessage(), "Проверка на формат email не проходит");
-        assertEquals("электронная почта не может быть пустой и должна содержать символ @", exUser2.getMessage(), "Проверка на пустой email не проходит");
+        assertEquals(1, massages.size(), "Проверка не корректный email не проходит");
+        assertTrue(massages.contains("электронная почта не может быть пустой и должна содержать символ @"), "Неверное сообщение об ошибке");
     }
 
     @Test
-    void test6_addNewUserWithFaiLogin() {
+    void test6_updateUserWithFailId() {
         userController.create(user);
         User newUser = new User(0, "o_kyzina@mail.ru", "1429644", "Olga", LocalDate.of(1987, 7, 17));
 
@@ -117,6 +113,6 @@ class UserControllerTest {
         List<User> listUser = userController.findAll();
 
         assertEquals(1, listUser.size(), "Список User не корректный");
-        assertEquals("пользователя с данным id не существует", exUser.getMessage(), "не выбрасывается исключение при неверном Id");
+        assertEquals("500 INTERNAL_SERVER_ERROR \"пользователя с данным id не существует\"", exUser.getMessage(), "не выбрасывается исключение при неверном Id");
     }
 }
