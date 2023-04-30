@@ -36,11 +36,11 @@ public class User {
         this.friends = new HashSet<>();
     }
 
-    public void addFriend (long idFriend){
+    public void addFriend(long idFriend){
         friends.add(idFriend);
     }
 
-    public void removeFriend (Long idFriend){
+    public void removeFriend(Long idFriend){
         friends.remove(idFriend);
     }
 
