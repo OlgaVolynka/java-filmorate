@@ -40,7 +40,7 @@ public class Film {
     public void addLike(long idUser) {
         likes.add(idUser);
     }
-    
+
     public void removeLike(long idUser) {
         likes.remove(idUser);
     }
