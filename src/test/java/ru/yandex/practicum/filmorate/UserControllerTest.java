@@ -7,6 +7,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.controller.UserController;
 import ru.yandex.practicum.filmorate.controller.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
@@ -22,13 +24,18 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 class UserControllerTest {
     protected User user = new User(0, "o_kyzina@mqil.ru", "1429644", "Olga", LocalDate.of(1987, 7, 17));
-    UserController userController = new UserController();
+    InMemoryUserStorage userStorage = new InMemoryUserStorage();
+    UserService userService = new UserService(userStorage);
+    ;
+    UserController userController = new UserController(userStorage);
     private Validator validator;
 
     @BeforeEach
     void init() {
         user = new User(0, "o_kyzina@mqil.ru", "1429644", "Olga", LocalDate.of(1987, 7, 17));
-        userController = new UserController();
+        userStorage = new InMemoryUserStorage();
+        userService = new UserService(userStorage);
+        userController = new UserController(userStorage);
         try (ValidatorFactory factory = Validation.buildDefaultValidatorFactory()) {
             this.validator = factory.getValidator();
         }

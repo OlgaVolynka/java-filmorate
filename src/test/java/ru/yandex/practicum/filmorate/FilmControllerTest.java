@@ -7,6 +7,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.controller.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
@@ -22,14 +24,21 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 public class FilmControllerTest {
     protected Film film = new Film("Социальные сети", "фильм о создании фэйсбук", LocalDate.of(2010, 11, 28), 120);
-    FilmController filmController = new FilmController();
+
+    InMemoryFilmStorage inMemoryFilmStorage = new InMemoryFilmStorage();
+    FilmService filmService = new FilmService(inMemoryFilmStorage);
+
+    FilmController filmController = new FilmController(inMemoryFilmStorage, filmService);
     private Validator validator;
 
 
     @BeforeEach
     void init() {
         film = new Film("Социальные сети", "фильм о создании фэйсбук", LocalDate.of(2010, 11, 28), 120);
-        filmController = new FilmController();
+
+       inMemoryFilmStorage = new InMemoryFilmStorage();
+      filmService = new FilmService(inMemoryFilmStorage);
+        filmController = new FilmController(inMemoryFilmStorage, filmService);;
         try (ValidatorFactory factory = Validation.buildDefaultValidatorFactory()) {
             this.validator = factory.getValidator();
         }

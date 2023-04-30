@@ -1,58 +1,68 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import ru.yandex.practicum.filmorate.model.User;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @Slf4j
 public class UserController {
-    private final Map<Long, User> users = new HashMap<>();
-    private long id = 0;
 
-    private Long countId() {
-        return ++id;
+    private final InMemoryUserStorage inMemoryUserStorage;
+    private final UserService userService;
+
+    @Autowired
+    public UserController(InMemoryUserStorage inMemoryUserStorage) {
+
+        this.inMemoryUserStorage = inMemoryUserStorage;
+        this.userService = new UserService(inMemoryUserStorage);
     }
 
     @GetMapping("/users")
     public List<User> findAll() {
-        log.info("Получен запрос GET users");
-        return new ArrayList<>(users.values());
+        return inMemoryUserStorage.findAll();
     }
 
     @PostMapping(value = "/users")
 
     public User create(@Valid @RequestBody User user) {
-        log.info("Получен запрос POST user");
-        String name = user.getName();
-
-        if (name == null || name.isBlank()) {
-            user.setName(user.getLogin());
-        }
-
-        user.setId(countId());
-        users.put(user.getId(), user);
-        return user;
+        return inMemoryUserStorage.create(user);
     }
 
     @PutMapping("/users")
     public User updateUser(@Valid @RequestBody User user) {
-        log.info("Получен запрос PUT user");
-        if (users.containsKey(user.getId())) {
+        return inMemoryUserStorage.updateUser(user);
+    }
 
-            if (user.getName().isBlank() || user.getName() == null) {
-                user.setName(user.getLogin());
-            }
-            users.put(user.getId(), user);
-            return user;
-        } else
-            throw new ValidationException(HttpStatus.INTERNAL_SERVER_ERROR, "пользователя с данным id не существует");
+    @PutMapping("/users/{id}/friends/{friendId}")
+    public void addFriends(@Valid @PathVariable("id") Long id, @PathVariable("friendId") Long friendId) {
+        userService.addFriends(id, friendId);
+    }
+
+    @DeleteMapping("/users/{id}/friends/{friendId}")
+    public void deleteFriends(@Valid @PathVariable("id") Long id, @PathVariable("friendId") Long friendId) {
+        userService.deleteFriends(id, friendId);
+    }
+
+    @GetMapping("/users/{id}/friends/common/{otherId}")
+    public Collection<User> getCommonFriends(@Valid @PathVariable Long id, @PathVariable Long otherId) {
+        return userService.getCommonFriends(id, otherId);
+    }
+
+    @GetMapping("/users/{id}/friends")
+    public Collection<User> getFriendsById(@Valid @PathVariable("id") Long userId) {
+        return userService.getSetFriends(userId);
+    }
+
+    @GetMapping("/users/{id}")
+    public User getUserById(@Valid @PathVariable("id") Long userId) {
+        return userService.getUserById(userId);
     }
 }
