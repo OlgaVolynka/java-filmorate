@@ -12,7 +12,6 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-
 @Getter
 @Setter
 public class Film {
@@ -37,13 +36,14 @@ public class Film {
         this.duration = duration;
         this.likes = new HashSet<>();
     }
-    public void addLike (long idUser){
+
+    public void addLike(long idUser) {
         likes.add(idUser);
     }
-    public void removeLike(long idUser){
+
+    public void removeLike(long idUser) {
         likes.remove(idUser);
     }
-
 
     @Override
     public boolean equals(Object o) {
