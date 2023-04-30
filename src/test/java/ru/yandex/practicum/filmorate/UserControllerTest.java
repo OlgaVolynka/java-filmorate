@@ -26,7 +26,7 @@ class UserControllerTest {
     protected User user = new User(0, "o_kyzina@mqil.ru", "1429644", "Olga", LocalDate.of(1987, 7, 17));
     InMemoryUserStorage userStorage = new InMemoryUserStorage();
     UserService userService = new UserService(userStorage);
-    ;
+    
     UserController userController = new UserController(userStorage);
     private Validator validator;
 
@@ -48,7 +48,6 @@ class UserControllerTest {
                 .map(ConstraintViolation::getMessage)
                 .collect(Collectors.toList());
     }
-
 
     @Test
     void test1_addNewUser() {
