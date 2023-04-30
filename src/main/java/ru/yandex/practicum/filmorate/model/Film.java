@@ -37,11 +37,11 @@ public class Film {
         this.likes = new HashSet<>();
     }
 
-    public void addLike (long idUser) {
+    public void addLike(long idUser) {
         likes.add(idUser);
     }
 
-    public void removeLike (long idUser) {
+    public void removeLike(long idUser) {
         likes.remove(idUser);
     }
 

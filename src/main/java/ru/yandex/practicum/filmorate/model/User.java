@@ -40,7 +40,7 @@ public class User {
         friends.add(idFriend);
     }
 
-    public void removeFriend(Long idFriend){
+    public void removeFriend (Long idFriend){
         friends.remove(idFriend);
     }
 
