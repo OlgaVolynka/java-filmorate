@@ -24,10 +24,8 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 public class FilmControllerTest {
     protected Film film = new Film("Социальные сети", "фильм о создании фэйсбук", LocalDate.of(2010, 11, 28), 120);
-
     InMemoryFilmStorage inMemoryFilmStorage = new InMemoryFilmStorage();
     FilmService filmService = new FilmService(inMemoryFilmStorage);
-
     FilmController filmController = new FilmController(inMemoryFilmStorage, filmService);
     private Validator validator;
 
@@ -36,9 +34,9 @@ public class FilmControllerTest {
     void init() {
         film = new Film("Социальные сети", "фильм о создании фэйсбук", LocalDate.of(2010, 11, 28), 120);
 
-       inMemoryFilmStorage = new InMemoryFilmStorage();
-      filmService = new FilmService(inMemoryFilmStorage);
-        filmController = new FilmController(inMemoryFilmStorage, filmService);;
+        inMemoryFilmStorage = new InMemoryFilmStorage();
+        filmService = new FilmService(inMemoryFilmStorage);
+        filmController = new FilmController(inMemoryFilmStorage, filmService);
         try (ValidatorFactory factory = Validation.buildDefaultValidatorFactory()) {
             this.validator = factory.getValidator();
         }
