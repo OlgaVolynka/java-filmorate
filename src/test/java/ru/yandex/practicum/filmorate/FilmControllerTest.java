@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.controller.FilmController;
-import ru.yandex.practicum.filmorate.controller.ValidationException;
+import ru.yandex.practicum.filmorate.exeption.DataNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
@@ -90,7 +90,7 @@ public class FilmControllerTest {
     @Test
     void test4_addNewFilmWithFaiReleaseDate() {
         film.setReleaseDate(LocalDate.of(1894, 1, 1));
-        ValidationException exFilm = assertThrows(ValidationException.class, new Executable() {
+        DataNotFoundException exFilm = assertThrows(DataNotFoundException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
                 filmController.createFilm(film);
@@ -121,7 +121,7 @@ public class FilmControllerTest {
         filmController.createFilm(film);
         Film newFilm = new Film("Социальные сети", "фильм о создании фэйсбук", LocalDate.of(2010, 11, 28), 125);
         newFilm.setId(120);
-        ValidationException exFilm = assertThrows(ValidationException.class, new Executable() {
+        DataNotFoundException exFilm = assertThrows(DataNotFoundException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
                 filmController.updateFilm(newFilm);

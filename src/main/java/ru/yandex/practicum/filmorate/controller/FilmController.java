@@ -26,37 +26,43 @@ public class FilmController {
 
     @GetMapping(value = "/films")
     public List<Film> findAll() {
+        log.info("Получен запрос GET films");
         return inMemoryFilmStorage.findAll();
     }
 
     @PostMapping(value = "/films")
-
     public Film createFilm(@Valid @RequestBody Film film) {
-        return inMemoryFilmStorage.createFilm(film);
+        log.info("Получен запрос POST film");
+        return filmService.createFilm(film);
     }
 
     @PutMapping(value = "/films")
     public Film updateFilm(@Valid @RequestBody Film film) {
-        return inMemoryFilmStorage.updateFilm(film);
+        log.info("Получен запрос PUT film");
+        return filmService.updateFilm(film);
     }
 
     @PutMapping(value = "/films/{id}/like/{userId}")
     public void addLike(@Valid @PathVariable("id") Long id, @PathVariable("userId") Long userId) {
+        log.info("Получен запрос PUT addLike");
         filmService.addLike(id, userId);
     }
 
     @DeleteMapping(value = "/films/{id}/like/{userId}")
     public void deleteLike(@Valid @PathVariable("id") Long id, @PathVariable("userId") Long userId) {
+        log.info("Получен запрос DELETE like");
         filmService.deleteLike(id, userId);
     }
 
     @GetMapping(value = "/films/popular")
-    public List<Film> getTop10(@Valid @RequestParam(value = "count", defaultValue = "10", required = false) Integer count) {
-        return filmService.getTop10(count);
+    public List<Film> getPopular(@Valid @RequestParam(value = "count", defaultValue = "10", required = false) Integer count) {
+        log.info("Получен запрос GET TOP10");
+        return filmService.getPopular(count);
     }
 
     @GetMapping("/films/{id}")
     public Film getFilmById(@Valid @PathVariable("id") Long id) {
+        log.info("Получен запрос GET film by id");
         return filmService.getFilmById(id);
     }
 }

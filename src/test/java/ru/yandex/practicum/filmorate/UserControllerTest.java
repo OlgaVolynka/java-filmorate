@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.controller.UserController;
-import ru.yandex.practicum.filmorate.controller.ValidationException;
+import ru.yandex.practicum.filmorate.exeption.DataNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
@@ -109,7 +109,7 @@ class UserControllerTest {
         userController.create(user);
         User newUser = new User(0, "o_kyzina@mail.ru", "1429644", "Olga", LocalDate.of(1987, 7, 17));
 
-        ValidationException exUser = assertThrows(ValidationException.class, new Executable() {
+        DataNotFoundException exUser = assertThrows(DataNotFoundException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
                 userController.updateUser(newUser);

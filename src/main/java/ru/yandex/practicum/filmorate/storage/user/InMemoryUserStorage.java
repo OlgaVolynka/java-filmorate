@@ -1,11 +1,8 @@
 package ru.yandex.practicum.filmorate.storage.user;
 
 import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.controller.ValidationException;
+import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.filmorate.exeption.DataNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.ArrayList;
@@ -13,13 +10,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Slf4j
-@Service
-@Component
+@Repository
 @Getter
 public class InMemoryUserStorage implements UserStorage {
 
-    private Map<Long, User> users = new HashMap<>();
+    private final Map<Long, User> users = new HashMap<>();
     private long id = 0;
 
     @Override
@@ -29,18 +24,12 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public List<User> findAll() {
-        log.info("Получен запрос GET users");
+
         return new ArrayList<>(users.values());
     }
 
     @Override
     public User create(User user) {
-        log.info("Получен запрос POST user");
-        String name = user.getName();
-
-        if (name == null || name.isBlank()) {
-            user.setName(user.getLogin());
-        }
 
         user.setId(countId());
         users.put(user.getId(), user);
@@ -49,31 +38,16 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public User updateUser(User user) {
-        log.info("Получен запрос PUT user");
-        if (users.containsKey(user.getId())) {
 
-            if (user.getName().isBlank() || user.getName() == null) {
-                user.setName(user.getLogin());
-            }
-            users.put(user.getId(), user);
-            return user;
-        } else
-            throw new ValidationException(HttpStatus.INTERNAL_SERVER_ERROR, "пользователя с данным id не существует");
+        users.put(user.getId(), user);
+        return user;
     }
 
-    public void addFriend(long userID, long friendId) {
+    public User getUserById(Long id) {
 
-        users.get(userID).addFriend(friendId);
-        users.get(friendId).addFriend(userID);
-
-    }
-
-    public void removeFriend(Long userID, Long friendId) {
-
-        if (!users.get(userID).getFriends().contains(friendId)) {
-            throw new ValidationException(HttpStatus.NOT_FOUND, "пользователи не состоят в друзьях");
+        if (!users.containsKey(id)) {
+            throw new DataNotFoundException("пользователь " + id + " не найден");
         }
-        users.get(userID).removeFriend(friendId);
-        users.get(friendId).removeFriend(userID);
+        return users.get(id);
     }
 }
