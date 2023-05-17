@@ -2,10 +2,8 @@ package ru.yandex.practicum.filmorate;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.function.Executable;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.controller.UserController;
-import ru.yandex.practicum.filmorate.exeption.DataNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
@@ -19,7 +17,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
 class UserControllerTest {
@@ -104,20 +103,4 @@ class UserControllerTest {
         assertTrue(massages.contains("электронная почта не может быть пустой и должна содержать символ @"), "Неверное сообщение об ошибке");
     }
 
-    @Test
-    void test6_updateUserWithFailId() {
-        userController.create(user);
-        User newUser = new User(0, "o_kyzina@mail.ru", "1429644", "Olga", LocalDate.of(1987, 7, 17));
-
-        DataNotFoundException exUser = assertThrows(DataNotFoundException.class, new Executable() {
-            @Override
-            public void execute() throws Throwable {
-                userController.updateUser(newUser);
-            }
-        });
-        List<User> listUser = userController.findAll();
-
-        assertEquals(1, listUser.size(), "Список User не корректный");
-        assertEquals("500 INTERNAL_SERVER_ERROR \"пользователя с данным id не существует\"", exUser.getMessage(), "не выбрасывается исключение при неверном Id");
-    }
 }

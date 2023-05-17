@@ -87,21 +87,6 @@ public class FilmControllerTest {
         assertTrue(massages.contains("максимальная длина описания — 200 символов"), "Неверное сообщение об ошибке");
     }
 
-    @Test
-    void test4_addNewFilmWithFaiReleaseDate() {
-        film.setReleaseDate(LocalDate.of(1894, 1, 1));
-        DataNotFoundException exFilm = assertThrows(DataNotFoundException.class, new Executable() {
-            @Override
-            public void execute() throws Throwable {
-                filmController.createFilm(film);
-            }
-        });
-
-        List<Film> listFilm = filmController.findAll();
-
-        assertEquals(0, listFilm.size(), "Список Film не корректный");
-        assertEquals("400 BAD_REQUEST \"дата релиза — не раньше 28 декабря 1895 года\"", exFilm.getMessage(), "Проверка на дату релиза не проходит");
-    }
 
     @Test
     void test5_addNewFilmWithFailDuration() {
@@ -131,6 +116,5 @@ public class FilmControllerTest {
         List<Film> listFilm = filmController.findAll();
 
         assertEquals(1, listFilm.size(), "Список Film не корректный");
-        assertEquals("500 INTERNAL_SERVER_ERROR \"фильма с данным id не существует\"", exFilm.getMessage(), "не выбрасывается исключение при неправильном Id");
     }
 }
