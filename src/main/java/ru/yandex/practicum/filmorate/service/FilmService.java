@@ -2,7 +2,7 @@ package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exeption.DataBadRequest;
+import ru.yandex.practicum.filmorate.exeption.ValidationException;
 import ru.yandex.practicum.filmorate.exeption.DataNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
@@ -57,7 +57,7 @@ public class FilmService {
     public Film createFilm(Film film) {
 
         if (film.getReleaseDate().isBefore(MIN_DATA)) {
-            throw new DataBadRequest("дата релиза — не раньше 28 декабря 1895 года");
+            throw new ValidationException("дата релиза — не раньше 28 декабря 1895 года");
         }
 
         return inMemoryFilmStorage.createFilm(film);
@@ -68,7 +68,7 @@ public class FilmService {
         inMemoryFilmStorage.getFilmById(film.getId());
 
         if (film.getReleaseDate().isBefore(MIN_DATA)) {
-            throw new DataBadRequest("дата релиза — не раньше 28 декабря 1895 года");
+            throw new ValidationException("дата релиза — не раньше 28 декабря 1895 года");
         } else {
             return inMemoryFilmStorage.updateFilm(film);
         }

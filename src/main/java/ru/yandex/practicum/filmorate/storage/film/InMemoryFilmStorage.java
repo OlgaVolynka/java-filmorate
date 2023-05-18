@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate.storage.film;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
-import ru.yandex.practicum.filmorate.exeption.DataBadRequest;
 import ru.yandex.practicum.filmorate.exeption.DataNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 
@@ -34,10 +33,6 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public Film createFilm(Film film) {
-
-        if (film.getReleaseDate().isBefore(MIN_DATA)) {
-            throw new DataBadRequest("дата релиза — не раньше 28 декабря 1895 года");
-        }
 
         film.setId(countId());
         films.put(film.getId(), film);

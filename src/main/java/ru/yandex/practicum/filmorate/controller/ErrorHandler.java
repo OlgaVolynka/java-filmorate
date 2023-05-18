@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.yandex.practicum.filmorate.exeption.DataAlreadyExist;
-import ru.yandex.practicum.filmorate.exeption.DataBadRequest;
+import ru.yandex.practicum.filmorate.exeption.ValidationException;
 import ru.yandex.practicum.filmorate.exeption.DataNotFoundException;
 import ru.yandex.practicum.filmorate.model.ErrorResponse;
 
@@ -30,7 +30,7 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleDataBadRequest(final DataBadRequest e) {
+    public ErrorResponse handleDataBadRequest(final ValidationException e) {
         return new ErrorResponse(
                 e.getMessage()
         );
