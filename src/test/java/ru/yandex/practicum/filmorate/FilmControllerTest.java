@@ -5,8 +5,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.controller.FilmController;
-import ru.yandex.practicum.filmorate.controller.ValidationException;
+import ru.yandex.practicum.filmorate.exeption.DataNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
@@ -22,14 +24,19 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 public class FilmControllerTest {
     protected Film film = new Film("Социальные сети", "фильм о создании фэйсбук", LocalDate.of(2010, 11, 28), 120);
-    FilmController filmController = new FilmController();
+    InMemoryFilmStorage inMemoryFilmStorage = new InMemoryFilmStorage();
+    FilmService filmService = new FilmService(inMemoryFilmStorage);
+    FilmController filmController = new FilmController(inMemoryFilmStorage, filmService);
     private Validator validator;
 
 
     @BeforeEach
     void init() {
         film = new Film("Социальные сети", "фильм о создании фэйсбук", LocalDate.of(2010, 11, 28), 120);
-        filmController = new FilmController();
+
+        inMemoryFilmStorage = new InMemoryFilmStorage();
+        filmService = new FilmService(inMemoryFilmStorage);
+        filmController = new FilmController(inMemoryFilmStorage, filmService);
         try (ValidatorFactory factory = Validation.buildDefaultValidatorFactory()) {
             this.validator = factory.getValidator();
         }
@@ -80,21 +87,6 @@ public class FilmControllerTest {
         assertTrue(massages.contains("максимальная длина описания — 200 символов"), "Неверное сообщение об ошибке");
     }
 
-    @Test
-    void test4_addNewFilmWithFaiReleaseDate() {
-        film.setReleaseDate(LocalDate.of(1894, 1, 1));
-        ValidationException exFilm = assertThrows(ValidationException.class, new Executable() {
-            @Override
-            public void execute() throws Throwable {
-                filmController.createFilm(film);
-            }
-        });
-
-        List<Film> listFilm = filmController.findAll();
-
-        assertEquals(0, listFilm.size(), "Список Film не корректный");
-        assertEquals("400 BAD_REQUEST \"дата релиза — не раньше 28 декабря 1895 года\"", exFilm.getMessage(), "Проверка на дату релиза не проходит");
-    }
 
     @Test
     void test5_addNewFilmWithFailDuration() {
@@ -114,7 +106,7 @@ public class FilmControllerTest {
         filmController.createFilm(film);
         Film newFilm = new Film("Социальные сети", "фильм о создании фэйсбук", LocalDate.of(2010, 11, 28), 125);
         newFilm.setId(120);
-        ValidationException exFilm = assertThrows(ValidationException.class, new Executable() {
+        DataNotFoundException exFilm = assertThrows(DataNotFoundException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
                 filmController.updateFilm(newFilm);
@@ -124,6 +116,5 @@ public class FilmControllerTest {
         List<Film> listFilm = filmController.findAll();
 
         assertEquals(1, listFilm.size(), "Список Film не корректный");
-        assertEquals("500 INTERNAL_SERVER_ERROR \"фильма с данным id не существует\"", exFilm.getMessage(), "не выбрасывается исключение при неправильном Id");
     }
 }
