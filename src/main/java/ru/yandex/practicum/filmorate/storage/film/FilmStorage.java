@@ -1,12 +1,15 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
+import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
+@Component
 public interface FilmStorage {
     Map<Long, Film> films = new HashMap<>();
     LocalDate MIN_DATA = LocalDate.of(1895, 12, 28);
@@ -19,4 +22,6 @@ public interface FilmStorage {
     Film createFilm(Film film);
 
     Film updateFilm(Film film);
+
+     Film getFilmById(Long id);
 }

@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.storage.user;
+/*package ru.yandex.practicum.filmorate.storage.user;
 
 import lombok.Getter;
 import org.springframework.stereotype.Repository;
@@ -50,4 +50,4 @@ public class InMemoryUserStorage implements UserStorage {
         }
         return users.get(id);
     }
-}
+}*/

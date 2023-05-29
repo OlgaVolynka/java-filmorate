@@ -5,30 +5,32 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
-import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
+
+import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
 
 import javax.validation.Valid;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @Slf4j
 public class UserController {
 
-    private final InMemoryUserStorage inMemoryUserStorage;
+    private final UserDbStorage userDbStorage;
     private final UserService userService;
 
     @Autowired
-    public UserController(InMemoryUserStorage inMemoryUserStorage) {
+    public UserController(UserDbStorage userDbStorage, UserService userService ) {
 
-        this.inMemoryUserStorage = inMemoryUserStorage;
-        this.userService = new UserService(inMemoryUserStorage);
+        this.userDbStorage = userDbStorage;
+        this.userService = userService;
     }
 
     @GetMapping("/users")
     public List<User> findAll() {
         log.info("Получен запрос GET users");
-        return inMemoryUserStorage.findAll();
+        return userDbStorage.findAll();
     }
 
     @PostMapping(value = "/users")

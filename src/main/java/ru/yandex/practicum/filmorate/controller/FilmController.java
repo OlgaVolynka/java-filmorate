@@ -2,35 +2,46 @@ package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.service.FilmService;
-import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
+
 
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @Slf4j
 public class FilmController {
 
-    private final InMemoryFilmStorage inMemoryFilmStorage;
+  //  private final InMemoryFilmStorage inMemoryFilmStorage;
+    FilmDbStorage filmDbStorage;
+
     private final FilmService filmService;
+    Genre genre;
+    Mpa mpa;
+
 
     @Autowired
 
-    public FilmController(InMemoryFilmStorage inMemoryFilmStorage, FilmService filmService) {
-        this.inMemoryFilmStorage = inMemoryFilmStorage;
+    public FilmController(FilmDbStorage filmDbStorage, FilmService filmService) {
+        this.filmDbStorage = filmDbStorage;
         this.filmService = filmService;
     }
 
     @GetMapping(value = "/films")
     public List<Film> findAll() {
         log.info("Получен запрос GET films");
-        return inMemoryFilmStorage.findAll();
+        return filmDbStorage.findAll();
     }
 
-    @PostMapping(value = "/films")
+   @PostMapping(value = "/films")
     public Film createFilm(@Valid @RequestBody Film film) {
         log.info("Получен запрос POST film");
         return filmService.createFilm(film);
@@ -57,12 +68,24 @@ public class FilmController {
     @GetMapping(value = "/films/popular")
     public List<Film> getPopular(@Valid @RequestParam(value = "count", defaultValue = "10", required = false) Integer count) {
         log.info("Получен запрос GET TOP10");
+
         return filmService.getPopular(count);
     }
 
     @GetMapping("/films/{id}")
     public Film getFilmById(@Valid @PathVariable("id") Long id) {
         log.info("Получен запрос GET film by id");
-        return filmService.getFilmById(id);
+        return filmDbStorage.getFilmById(id);
     }
+ /*   @GetMapping("/genres/{id}")
+    public Genre getGenreById(@Valid @PathVariable("id") Integer id) {
+        log.info("Получен запрос GET film by id");
+        return Genre.forValues(id);
+    }*/
+    @GetMapping("/mpa/{id}")
+    public Mpa getMpaById(@Valid @PathVariable("id") Integer id) {
+        log.info("Получен запрос GET film by id");
+        return Mpa.forValues(id);
+    }
+
 }
