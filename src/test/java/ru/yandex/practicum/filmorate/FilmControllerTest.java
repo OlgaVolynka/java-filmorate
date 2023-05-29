@@ -3,19 +3,13 @@ package ru.yandex.practicum.filmorate;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.function.Executable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.jdbc.core.JdbcTemplate;
-import ru.yandex.practicum.filmorate.controller.FilmController;
-import ru.yandex.practicum.filmorate.exeption.DataNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
-import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
-
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
@@ -27,7 +21,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
 @AutoConfigureTestDatabase
@@ -35,10 +30,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class FilmControllerTest {
     protected Film film = new Film("Социальные сети", "фильм о создании фэйсбук", LocalDate.of(2010, 11, 28), 120);
-  // InMemoryFilmStorage inMemoryFilmStorage = new InMemoryFilmStorage();
-  private final FilmDbStorage filmDbStorage ;
-   // FilmService filmService = new FilmService(filmDbStorage);
-   // FilmController filmController = new FilmController(filmDbStorage, filmService);
+    private final FilmDbStorage filmDbStorage;
     private Validator validator;
 
 
@@ -46,9 +38,6 @@ public class FilmControllerTest {
     void init() {
         film = new Film("Социальные сети", "фильм о создании фэйсбук", LocalDate.of(2010, 11, 28), 120);
 
-       // filmDbStorage = new FilmDbStorage(new JdbcTemplate());
-       // filmService = new FilmService(filmDbStorage);
-       // filmController = new FilmController(filmDbStorage, filmService);
         try (ValidatorFactory factory = Validation.buildDefaultValidatorFactory()) {
             this.validator = factory.getValidator();
         }
@@ -78,7 +67,7 @@ public class FilmControllerTest {
     void test1_updateAndGetFilmById() {
         Film newFilm = filmDbStorage.createFilm(film);
         newFilm.setMpa(Mpa.PG13);
-        List< Genre > genreList = new ArrayList<>();
+        List<Genre> genreList = new ArrayList<>();
         genreList.add(new Genre(1, "Комедия"));
         newFilm.setGenres(genreList);
         filmDbStorage.updateFilm(newFilm);
@@ -118,7 +107,6 @@ public class FilmControllerTest {
         assertTrue(massages.contains("максимальная длина описания — 200 символов"), "Неверное сообщение об ошибке");
     }
 
-
     @Test
     void test5_addNewFilmWithFailDuration() {
 
@@ -131,6 +119,4 @@ public class FilmControllerTest {
         assertEquals(1, massages.size(), "Проверка на положительный Duration не проходит");
         assertTrue(massages.contains("продолжительность фильма должна быть положительной"), "Неверное сообщение об ошибке");
     }
-
-
 }

@@ -1,28 +1,24 @@
 package ru.yandex.practicum.filmorate;
 
 import lombok.RequiredArgsConstructor;
-import org.jetbrains.annotations.Async;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
-import ru.yandex.practicum.filmorate.controller.UserController;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.service.UserService;
-
 import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
 
-import javax.validation.*;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Executable;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -30,26 +26,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @SpringBootTest
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-
 class UserControllerTest {
-    // public User (String email, String login, String name, LocalDate birthday) {
     protected User user = new User("o_kyzina@mqil.ru", "1429644", "Olga", LocalDate.of(1987, 7, 17));
-    //InMemoryUserStorage userStorage = new InMemoryUserStorage();
-
     private final UserDbStorage userStorage;
-
-    // UserController userController = new UserController(userStorage);
     private Validator validator;
     private JdbcTemplate jdbcTemplate;
-
-//    UserService userService = new UserService(userStorage, null);
 
     @BeforeEach
     void init() {
         user = new User("o_kyzina@mqil.ru", "1429644", "Olga", LocalDate.of(1987, 7, 17));
-        //  userStorage = new UserDbStorage(jdbcTemplate);
-        //   userService = new UserService(userStorage);
-        //   userController = new UserController(userStorage);
         try (ValidatorFactory factory = Validation.buildDefaultValidatorFactory()) {
             this.validator = factory.getValidator();
         }

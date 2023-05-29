@@ -38,10 +38,11 @@ public class GenreDbStorage {
         return genres;
 
     }
+
     public Genre getGenresById(Integer id) {
 
         SqlRowSet rs = jdbcTemplate.queryForRowSet("select * from genres where id = ?", id);
-//id, String email, String login, String name, LocalDate birthday
+
         if (rs.next()) {
             Genre genre = new Genre(
                     rs.getInt("id"),
@@ -53,7 +54,4 @@ public class GenreDbStorage {
         throw new DataNotFoundException("Не найден id жанра");
 
     }
-
-
-
 }

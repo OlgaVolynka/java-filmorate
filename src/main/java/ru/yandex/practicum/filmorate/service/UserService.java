@@ -4,12 +4,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exeption.DataNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
-
 import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -17,7 +18,6 @@ public class UserService {
     private final UserDbStorage userDbStorage;
     private final JdbcTemplate jdbcTemplate;
     private long id = 0;
-
 
     @Autowired
     public UserService(UserDbStorage userDbStorage, JdbcTemplate jdbcTemplate) {
@@ -29,13 +29,6 @@ public class UserService {
 
         userDbStorage.getUserById(id);
         userDbStorage.getUserById(friendId);
-
-     /*   String sqlQuery = "insert into users_friend(user_id, friend_id) " +
-                "values (?, ?)";
-        jdbcTemplate.update(sqlQuery,
-                id,
-                friendId
-        );*/
 
         String sqlQuery = "insert into users_friend(user_id, friend_id) " +
                 "values (?, ?)";
@@ -50,10 +43,6 @@ public class UserService {
 
         userDbStorage.getUserById(id);
         userDbStorage.getUserById(friendId);
-
-        //  if (!userStorage.getUserById(id).getFriends().contains(friendId)) {
-        //      throw new DataNotFoundException("пользователи не состоят в друзьях");
-        //  }
 
         String sqlQuery = "delete from users_friend where user_id = ? and friend_id = ?";
         jdbcTemplate.update(sqlQuery, id, friendId);
@@ -85,34 +74,19 @@ public class UserService {
 
         userDbStorage.getUserById(userId);
 
-    /*    SqlRowSet rs = jdbcTemplate.queryForRowSet("select friend_id from users_friend where user_id=? )", id);
-//id, String email, String login, String name, LocalDate birthday
-
-
-        if (rs.next()) {
-
-            listIdUser.add(rs.getInt("friend_id"));
-
-
-        }*/
-
         Set<Long> listId = getSetIdFriends(userId);
-        List<User> listUser = new ArrayList<>();
-      //  if (listId.isEmpty()){
-       //     return listUser;
-      //  } else {
+        List<User> listUser;
 
-         listUser = listId.stream()
+        listUser = listId.stream()
                 .map(user -> getUserById(user))
                 .collect(Collectors.toList());
 
         return listUser;
-        //}
+
     }
 
     public User getUserById(Long userId) {
 
-        //userDbStorage.getUserById(userId);
         return userDbStorage.getUserById(userId);
     }
 
@@ -147,7 +121,6 @@ public class UserService {
 
             listIdUser.add((long) rs.getInt("friend_id"));
         }
-
         return listIdUser;
     }
 }

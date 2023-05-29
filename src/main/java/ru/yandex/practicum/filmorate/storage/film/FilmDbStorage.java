@@ -53,26 +53,8 @@ public class FilmDbStorage implements FilmStorage {
 
             newFilm.setMpa(Mpa.forValues(rs.getInt("mpa")));
 
-            List<Genre> listGenres = new ArrayList<>();
+            List<Genre> listGenres = setGenres(Long.valueOf(rs.getInt("id")));
 
-            String sqlQuery2 = "select film_id, genre_id, genres_name from films_genres left join genres on films_genres.genre_id = genres.id where film_id = ?";
-
-           /* String sqlQuery2 = "select film_id as id,\n" +
-                    "genre_name as genrename\n" +
-                    "from films_genres gf\n"+
-                    " left join genres g on gf.genre_id = g.genre_id\n" +
-                    "order by id";*/
-
-            SqlRowSet rs2 = jdbcTemplate.queryForRowSet(sqlQuery2, rs.getInt("id"));
-
-
-            while (rs2.next()) {
-                Genre newGenre = new Genre(
-                        rs2.getInt("genre_id"),
-                        rs2.getString("GENRES_NAME"));
-                listGenres.add(newGenre);
-
-            }
             newFilm.setGenres(listGenres);
 
             films.add(newFilm);
@@ -102,7 +84,7 @@ public class FilmDbStorage implements FilmStorage {
         List<Genre> genreList = film.getGenres();
         if (genreList != null) {
             for (Genre genreId : genreList) {
-                String sqlQuery2 = "insert into films_genres (FILM_ID, GENRE_ID)"+
+                String sqlQuery2 = "insert into films_genres (FILM_ID, GENRE_ID)" +
                         "values (?,?)";
                 jdbcTemplate.update(sqlQuery2, film.getId(), genreId.getId());
             }
@@ -113,15 +95,6 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film updateFilm(Film film) {
-
-     /*   Film oldFilm = getFilmById(film.getId());
-
-        List<Genre> genreOldList = oldFilm.getGenres(); //Удаляем данные о предыдущих жанрах
-        if (genreOldList != null) {
-
-                String sqlQuery2 = "delete from films_genres where film_id = ?";
-                jdbcTemplate.update(sqlQuery2, film.getId());
-            }*/
 
         String sqlQuery = "update films set " +
                 "name = ?, description = ?, releaseDate = ?, duration = ?, rate = ?, mpa = ?  " +
@@ -138,18 +111,17 @@ public class FilmDbStorage implements FilmStorage {
 
         );
         String sqlQueryDel = "delete from films_genres where FILM_ID = ?";
-        jdbcTemplate.update(sqlQueryDel,film.getId());
-
+        jdbcTemplate.update(sqlQueryDel, film.getId());
+//
         List<Genre> genreList = film.getGenres();
         if (genreList != null) {
             for (Genre genreId : genreList) {
-                String sqlQuery2 = "merge into films_genres key (GENRE_ID) "+
-                                   "values (?,?)";
+                String sqlQuery2 = "merge into films_genres key (GENRE_ID) " +
+                        "values (?,?)";
 
-          //      String sqlQuery2 = "insert into films_genres (FILM_ID, GENRE_ID)"+
-          //              "values (?,?)";
                 jdbcTemplate.update(sqlQuery2, film.getId(), genreId.getId());
-            }   }
+            }
+        }
 
         return getFilmById(film.getId());
     }
@@ -174,26 +146,8 @@ public class FilmDbStorage implements FilmStorage {
 
             newFilm.setMpa(Mpa.forValues(rs.getInt("mpa")));
 
-            List<Genre> listGenres = new ArrayList<>();
+            List<Genre> listGenres = setGenres(id);
 
-            String sqlQuery2 = "select film_id, genre_id, genres_name from films_genres left join genres on films_genres.genre_id = genres.id where film_id = ?";
-
-           /* String sqlQuery2 = "select film_id as id,\n" +
-                    "genre_name as genrename\n" +
-                    "from films_genres gf\n"+
-                    " left join genres g on gf.genre_id = g.genre_id\n" +
-                    "order by id";*/
-
-            SqlRowSet rs2 = jdbcTemplate.queryForRowSet(sqlQuery2, id);
-
-
-            while (rs2.next()) {
-                Genre newGenre = new Genre(
-                rs2.getInt("genre_id"),
-                rs2.getString("GENRES_NAME"));
-                listGenres.add(newGenre);
-
-            }
             newFilm.setGenres(listGenres);
 
             return newFilm;
@@ -202,11 +156,27 @@ public class FilmDbStorage implements FilmStorage {
             throw new DataNotFoundException("фильм " + id + " не найден");
         }
     }
-/*
-    public boolean deleteFilm(long id) {
-        String sqlQuery = "delete from films where id = ?";
-        return jdbcTemplate.update(sqlQuery, id) > 0;
-    }*/
+
+    public List<Genre> setGenres(Long id) {
+
+        List<Genre> listGenres = new ArrayList<>();
+
+        String sqlQuery2 = "select film_id, genre_id, genres_name from films_genres left join genres on films_genres.genre_id = genres.id where film_id = ?";
+
+        SqlRowSet rs2 = jdbcTemplate.queryForRowSet(sqlQuery2, id);
+
+
+        while (rs2.next()) {
+            Genre newGenre = new Genre(
+                    rs2.getInt("genre_id"),
+                    rs2.getString("GENRES_NAME"));
+            listGenres.add(newGenre);
+
+        }
+        return listGenres;
+
+    }
+
 }
 
 
