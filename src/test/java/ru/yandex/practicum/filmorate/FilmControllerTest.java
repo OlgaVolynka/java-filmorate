@@ -64,7 +64,7 @@ public class FilmControllerTest {
 
     @Test
     void test1_updateAndGetFilmById() {
-        film.setMpa(new Mpa (2,"PG"));
+        film.setMpa(new Mpa(2,"PG"));
         Film newFilm = filmDbStorage.createFilm(film);
         newFilm.setMpa(new Mpa(1,"G"));
         List<Genre> genreList = new ArrayList<>();
