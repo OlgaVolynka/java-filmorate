@@ -52,10 +52,9 @@ public class FilmControllerTest {
 
     @Test
     void test1_addNewFilm() {
-        film.setMpa(new Mpa (1,"G"));
+        film.setMpa(new Mpa(1,"G"));
         filmDbStorage.createFilm(film);
         List<Film> listFilm = filmDbStorage.findAll();
-
         assertEquals(2, listFilm.size(), "Список Film не корректный");
         assertEquals(film.getName(), listFilm.get(0).getName(), "названия фильмов не совпадают");
         assertEquals(film.getDescription(), listFilm.get(0).getDescription(), "описания фильмов не совпадают");
@@ -67,7 +66,7 @@ public class FilmControllerTest {
     void test1_updateAndGetFilmById() {
         film.setMpa(new Mpa (2,"PG"));
         Film newFilm = filmDbStorage.createFilm(film);
-        newFilm.setMpa(new Mpa (1,"G"));
+        newFilm.setMpa(new Mpa(1,"G"));
         List<Genre> genreList = new ArrayList<>();
         genreList.add(new Genre(1, "Комедия"));
         newFilm.setGenres(genreList);
