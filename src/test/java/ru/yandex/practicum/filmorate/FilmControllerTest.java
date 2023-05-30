@@ -29,14 +29,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 
 public class FilmControllerTest {
-    protected Film film = new Film("Социальные сети", "фильм о создании фэйсбук", LocalDate.of(2010, 11, 28), 120);
+    protected Film film = new Film(1,"Социальные сети", "фильм о создании фэйсбук", LocalDate.of(2010, 11, 28), 120);
     private final FilmDbStorage filmDbStorage;
     private Validator validator;
 
 
     @BeforeEach
     void init() {
-        film = new Film("Социальные сети", "фильм о создании фэйсбук", LocalDate.of(2010, 11, 28), 120);
+        film = new Film(1, "Социальные сети", "фильм о создании фэйсбук", LocalDate.of(2010, 11, 28), 120);
 
         try (ValidatorFactory factory = Validation.buildDefaultValidatorFactory()) {
             this.validator = factory.getValidator();
@@ -53,6 +53,7 @@ public class FilmControllerTest {
 
     @Test
     void test1_addNewFilm() {
+        film.setMpa(new Mpa (1,"G"));
         filmDbStorage.createFilm(film);
         List<Film> listFilm = filmDbStorage.findAll();
 
@@ -65,8 +66,9 @@ public class FilmControllerTest {
 
     @Test
     void test1_updateAndGetFilmById() {
+        film.setMpa(new Mpa (2,"PG"));
         Film newFilm = filmDbStorage.createFilm(film);
-        newFilm.setMpa(Mpa.PG13);
+        newFilm.setMpa(new Mpa (1,"G"));
         List<Genre> genreList = new ArrayList<>();
         genreList.add(new Genre(1, "Комедия"));
         newFilm.setGenres(genreList);

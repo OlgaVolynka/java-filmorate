@@ -13,6 +13,11 @@ import java.util.Objects;
 @Getter
 @Setter
 public class User {
+
+    public interface UpdateId {
+    }
+
+    @NotNull(groups = {UpdateId.class})
     private long id;
     @Email(message = "электронная почта не может быть пустой и должна содержать символ @")
     private String email;
@@ -24,8 +29,9 @@ public class User {
     private LocalDate birthday;
 
 
-    public User(String email, String login, String name, LocalDate birthday) {
+    public User(Long id, String email, String login, String name, LocalDate birthday) {
 
+        this.id = id;
         this.email = email;
         this.login = login;
         this.name = name;
@@ -42,12 +48,12 @@ public class User {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
-        return id == user.id && Objects.equals(email, user.email) && Objects.equals(login, user.login) && Objects.equals(name, user.name) && Objects.equals(birthday, user.birthday);
+        return id == user.id;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, email, login, name, birthday);
+        return Objects.hash(id);
     }
 
 }

@@ -1,38 +1,27 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.model.Mpa;
+import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.FilmService;
-import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
 
 import javax.validation.Valid;
 import java.util.List;
 
+@RequiredArgsConstructor
 @RestController
 @Slf4j
 public class FilmController {
 
-    FilmDbStorage filmDbStorage;
-
     private final FilmService filmService;
-    Genre genre;
-    Mpa mpa;
-
-    @Autowired
-
-    public FilmController(FilmDbStorage filmDbStorage, FilmService filmService) {
-        this.filmDbStorage = filmDbStorage;
-        this.filmService = filmService;
-    }
 
     @GetMapping(value = "/films")
     public List<Film> findAll() {
         log.info("Получен запрос GET films");
-        return filmDbStorage.findAll();
+        return filmService.findAll();
     }
 
     @PostMapping(value = "/films")
@@ -42,7 +31,7 @@ public class FilmController {
     }
 
     @PutMapping(value = "/films")
-    public Film updateFilm(@Valid @RequestBody Film film) {
+    public Film updateFilm(@Validated(User.UpdateId.class) @RequestBody Film film) {
         log.info("Получен запрос PUT film");
         return filmService.updateFilm(film);
     }
@@ -69,12 +58,8 @@ public class FilmController {
     @GetMapping("/films/{id}")
     public Film getFilmById(@Valid @PathVariable("id") Long id) {
         log.info("Получен запрос GET film by id");
-        return filmDbStorage.getFilmById(id);
+        return filmService.getFilmById(id);
     }
 
-    @GetMapping("/mpa/{id}")
-    public Mpa getMpaById(@Valid @PathVariable("id") Integer id) {
-        log.info("Получен запрос GET film by id");
-        return Mpa.forValues(id);
-    }
+
 }

@@ -2,13 +2,14 @@ package ru.yandex.practicum.filmorate.storage.film;
 
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
 
 import java.util.List;
 
 @Component
 public interface FilmStorage {
 
-     long id = 0;
+    long id = 0;
 
     Long countId();
 
@@ -19,4 +20,8 @@ public interface FilmStorage {
     Film updateFilm(Film film);
 
     Film getFilmById(Long id);
+
+    List<Genre> setGenres(Long id);
+
+    List<Film> getPopular(Integer count);
 }

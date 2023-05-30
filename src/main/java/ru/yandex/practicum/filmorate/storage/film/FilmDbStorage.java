@@ -1,6 +1,9 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
@@ -8,26 +11,22 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.filmorate.exeption.DataNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.model.Mpa;
+import ru.yandex.practicum.filmorate.storage.MpaDbStorage;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
+@RequiredArgsConstructor
 @Component
+@Qualifier("bd")
 @Slf4j
+@Primary
 public class FilmDbStorage implements FilmStorage {
 
     private final JdbcTemplate jdbcTemplate;
+    private final MpaDbStorage mpaDbStorage;
+
     private long id = 0;
-
-    LinkedHashSet<String> genreList = new LinkedHashSet<>();
-
-
-    public FilmDbStorage(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-        genreList.add("Комедия");
-        genreList.add("Драма");
-
-    }
 
     @Override
     public Long countId() {
@@ -42,6 +41,7 @@ public class FilmDbStorage implements FilmStorage {
 
         while (rs.next()) {
             Film newFilm = new Film(
+                    rs.getInt("id"),
                     rs.getString("name").trim(),
                     rs.getString("description").trim(),
                     rs.getDate("releaseDate").toLocalDate(),
@@ -49,9 +49,7 @@ public class FilmDbStorage implements FilmStorage {
 
             );
 
-            newFilm.setId(rs.getInt("id"));
-
-            newFilm.setMpa(Mpa.forValues(rs.getInt("mpa")));
+            newFilm.setMpa(mpaDbStorage.getMpaById(rs.getInt("mpa")));
 
             List<Genre> listGenres = setGenres(Long.valueOf(rs.getInt("id")));
 
@@ -135,6 +133,7 @@ public class FilmDbStorage implements FilmStorage {
             log.info("Найден фильм: {} {}", rs.getString("id"), rs.getString("name"));
             // вы заполните данные пользователя в следующем уроке
             Film newFilm = new Film(
+                    rs.getInt("id"),
                     rs.getString("name").trim(),
                     rs.getString("description").trim(),
                     rs.getDate("releaseDate").toLocalDate(),
@@ -142,9 +141,7 @@ public class FilmDbStorage implements FilmStorage {
 
             );
 
-            newFilm.setId(rs.getInt("id"));
-
-            newFilm.setMpa(Mpa.forValues(rs.getInt("mpa")));
+            newFilm.setMpa(mpaDbStorage.getMpaById(rs.getInt("mpa")));
 
             List<Genre> listGenres = setGenres(id);
 
@@ -157,6 +154,7 @@ public class FilmDbStorage implements FilmStorage {
         }
     }
 
+    @Override
     public List<Genre> setGenres(Long id) {
 
         List<Genre> listGenres = new ArrayList<>();
@@ -177,6 +175,20 @@ public class FilmDbStorage implements FilmStorage {
 
     }
 
+    @Override
+    public List<Film> getPopular(Integer count) {
+        List<Film> filmSet = new ArrayList<>();
+
+        SqlRowSet rs = jdbcTemplate.queryForRowSet("select films.ID, count(film_likes.USER_ID) as count_user  from films left outer join film_likes on FILMS.ID = FILM_LIKES.FILM_ID group by FILMS.ID order by count_user desc limit ?", count);
+        while (rs.next()) {
+            filmSet.add(getFilmById((long) rs.getInt("id")));
+        }
+
+        return filmSet;
+    }
+
 }
+
+
 
 

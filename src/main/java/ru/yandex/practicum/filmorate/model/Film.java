@@ -14,7 +14,10 @@ import java.util.Objects;
 @Getter
 @Setter
 public class Film {
+    public interface UpdateId {
+    }
 
+    @NotNull(groups = {UpdateId.class})
     private long id;
     @NotNull(message = "название не может быть пустым")
     @NotBlank(message = "название не может быть пустым")
@@ -25,12 +28,12 @@ public class Film {
     @Positive(message = "продолжительность фильма должна быть положительной")
     private long duration;
     private List<Genre> genres;
-    private Mpa mpa = Mpa.G;
-    private Integer rate = null;
+    private Mpa mpa;
+    private Integer rate;
 
+    public Film(long id, String name, String description, LocalDate releaseDate, long duration) {
 
-    public Film(String name, String description, LocalDate releaseDate, long duration) {
-
+        this.id = id;
         this.name = name;
         this.description = description;
         this.releaseDate = releaseDate;
@@ -42,20 +45,16 @@ public class Film {
 
     }
 
-    public List<Genre> getGenres() {
-        return genres;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Film film = (Film) o;
-        return id == film.id && duration == film.duration && Objects.equals(name, film.name) && Objects.equals(description, film.description) && Objects.equals(releaseDate, film.releaseDate);
+        return id == film.id;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, description, releaseDate, duration);
+        return Objects.hash(id);
     }
 }

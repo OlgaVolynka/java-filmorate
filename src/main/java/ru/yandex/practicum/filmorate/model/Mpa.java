@@ -1,44 +1,45 @@
 package ru.yandex.practicum.filmorate.model;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import ru.yandex.practicum.filmorate.exeption.DataNotFoundException;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
+import org.springframework.data.relational.core.query.Update;
 
-@JsonFormat(shape = JsonFormat.Shape.OBJECT)
-public enum Mpa {
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import java.util.Objects;
 
-    G(1, "G"),
-    PG(2, "PG"),
-    PG13(3, "PG-13"),
-    R(4, "R"),
-    NC17(5, "NC-17");
+@Builder
+@Getter
+@Setter
+@NotNull(groups = {Update.class})
+public class Mpa {
 
+    @NotNull
+    @NotBlank(message = "id не может быть пустым")
+    private Integer id;
 
-    private final int id;
-    private final String name;
+    @NotNull
+    @NotBlank(message = "название не может быть пустым")
+    private String name;
 
-    Mpa(int id, String name) {
+    public Mpa(Integer id, String name) {
+
         this.id = id;
         this.name = name;
     }
 
-    public String getName() {
-        return name;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Mpa genre = (Mpa) o;
+        return Objects.equals(id, genre.id);
     }
 
-    public int getId() {
-        return id;
-    }
-
-    @JsonCreator
-    public static ru.yandex.practicum.filmorate.model.Mpa forValues(@JsonProperty("id") int id) {
-        for (ru.yandex.practicum.filmorate.model.Mpa mpa : ru.yandex.practicum.filmorate.model.Mpa.values()) {
-            if (mpa.id == id) {
-                return mpa;
-            }
-        }
-
-        throw new DataNotFoundException("Не найден MPA");
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }
+

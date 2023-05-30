@@ -27,14 +27,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 class UserControllerTest {
-    protected User user = new User("o_kyzina@mqil.ru", "1429644", "Olga", LocalDate.of(1987, 7, 17));
+    protected User user = new User(1L,"o_kyzina@mqil.ru", "1429644", "Olga", LocalDate.of(1987, 7, 17));
     private final UserDbStorage userStorage;
     private Validator validator;
-    private JdbcTemplate jdbcTemplate;
 
     @BeforeEach
     void init() {
-        user = new User("o_kyzina@mqil.ru", "1429644", "Olga", LocalDate.of(1987, 7, 17));
+        user = new User(1L,"o_kyzina@mqil.ru", "1429644", "Olga", LocalDate.of(1987, 7, 17));
         try (ValidatorFactory factory = Validation.buildDefaultValidatorFactory()) {
             this.validator = factory.getValidator();
         }
