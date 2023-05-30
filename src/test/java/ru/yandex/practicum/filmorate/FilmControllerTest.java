@@ -27,7 +27,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @SpringBootTest
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-
 public class FilmControllerTest {
     protected Film film = new Film(1,"Социальные сети", "фильм о создании фэйсбук", LocalDate.of(2010, 11, 28), 120);
     private final FilmDbStorage filmDbStorage;
