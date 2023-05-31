@@ -4,12 +4,20 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exeption.DataNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.util.*;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Component
 @Slf4j
@@ -17,50 +25,41 @@ import java.util.*;
 @Qualifier("bd")
 public class UserDbStorage implements UserStorage {
     private final JdbcTemplate jdbcTemplate;
-    private long id = 0;
+
 
     public UserDbStorage(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
     @Override
-    public Long countId() {
-        return ++id;
-    }
-
-    @Override
     public List<User> findAll() {
-        List<User> users = new ArrayList<>();
-        SqlRowSet rs = jdbcTemplate.queryForRowSet("select * from users");
 
-        if (rs.next()) {
-            User newUser = new User();
-            newUser.setEmail(rs.getString("email").trim());
-            newUser.setLogin(rs.getString("login").trim());
-            newUser.setName(rs.getString("name").trim());
-            newUser.setBirthday(rs.getDate("birthday").toLocalDate());
+        return jdbcTemplate.query("select * from users", this::makeUser);
 
-            newUser.setId(rs.getInt("id"));
-            users.add(newUser);
-        }
-        return users;
     }
 
     @Override
     public User create(User user) {
 
-        user.setId(countId());
-        String sqlQuery = "insert into users(id, email, login, name, birthday) " +
-                "values (?, ?, ?, ?, ?)";
-        jdbcTemplate.update(sqlQuery,
-                user.getId(),
-                user.getEmail(),
-                user.getLogin(),
-                user.getName(),
-                user.getBirthday()
-        );
+        String sqlQuery = "insert into users(email, login, name, birthday) " +
+                "values (?, ?, ?, ?)";
 
-        return user;
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+
+        jdbcTemplate.update(connection -> {
+            PreparedStatement stmt = connection.prepareStatement(sqlQuery, new String[]{"ID"});
+            stmt.setString(1, user.getEmail());
+            stmt.setString(2, user.getLogin());
+            stmt.setString(3, user.getName());
+            stmt.setDate(4, Date.valueOf(user.getBirthday()));
+
+            return stmt;
+        }, keyHolder);
+
+        user.setId(keyHolder.getKey().longValue());
+
+        return getUserById(user.getId());
+
     }
 
     @Override
@@ -85,21 +84,27 @@ public class UserDbStorage implements UserStorage {
         SqlRowSet rs = jdbcTemplate.queryForRowSet("select * from users where id = ?", id);
         if (rs.next()) {
             log.info("Пользователь: {} {}", rs.getString("id"), rs.getString("name"));
-            // вы заполните данные пользователя в следующем уроке
-            User newUser = new User(
-                    (long) rs.getInt("id"),
-                    rs.getString("email").trim(),
-                    rs.getString("login").trim(),
-                    rs.getString("name").trim(),
-                    rs.getDate("birthday").toLocalDate()
-            );
 
-            return newUser;
+            final String sqlQuery = "select * from users where id = ?";
+            return jdbcTemplate.query(sqlQuery, this::makeUser, id).get(0);
+
         } else {
             log.info("Фильм с идентификатором {} не найден.", id);
             throw new DataNotFoundException("пользователь " + id + " не найден");
         }
     }
+
+    public User makeUser(ResultSet rs, int rowNum) throws SQLException {
+        return new User(
+                (long) rs.getInt("id"),
+                rs.getString("email").trim(),
+                rs.getString("login").trim(),
+                rs.getString("name").trim(),
+                rs.getDate("birthday").toLocalDate()
+
+        );
+    }
+
 
     @Override
     public void addFriends(long id, long friendId) {

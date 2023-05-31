@@ -57,6 +57,7 @@ create table if not exists PUBLIC.films_genres
 (
     FILM_ID  INTEGER not null REFERENCES films (id),
     GENRE_ID INTEGER not null references genres (id)
+
 );
 
 

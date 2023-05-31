@@ -6,9 +6,7 @@ import java.util.List;
 import java.util.Set;
 
 public interface UserStorage {
-    long id = 0;
 
-    Long countId();
 
     List<User> findAll();
 

@@ -29,7 +29,7 @@ public class Film {
     private long duration;
     private List<Genre> genres;
     private Mpa mpa;
-    private Integer rate;
+    private Long rate;
 
     public Film(long id, String name, String description, LocalDate releaseDate, long duration) {
 
