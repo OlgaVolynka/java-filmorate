@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.user;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Primary;
@@ -19,17 +20,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+@RequiredArgsConstructor
 @Component
 @Slf4j
 @Primary
 @Qualifier("bd")
 public class UserDbStorage implements UserStorage {
     private final JdbcTemplate jdbcTemplate;
-
-
-    public UserDbStorage(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
 
     @Override
     public List<User> findAll() {
@@ -94,7 +91,7 @@ public class UserDbStorage implements UserStorage {
         }
     }
 
-    public User makeUser(ResultSet rs, int rowNum) throws SQLException {
+    private User makeUser(ResultSet rs, int rowNum) throws SQLException {
         return new User(
                 (long) rs.getInt("id"),
                 rs.getString("email").trim(),

@@ -67,6 +67,7 @@ public class FilmService {
             throw new ValidationException("дата релиза — не раньше 28 декабря 1895 года");
         } else {
             return filmDbStorage.updateFilm(film);
+
         }
     }
 
