@@ -1,12 +1,13 @@
 package ru.yandex.practicum.filmorate;
 
+import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
-import ru.yandex.practicum.filmorate.controller.UserController;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.service.UserService;
-import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
@@ -20,20 +21,18 @@ import java.util.stream.Collectors;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+
 @SpringBootTest
+@AutoConfigureTestDatabase
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 class UserControllerTest {
-    protected User user = new User(0, "o_kyzina@mqil.ru", "1429644", "Olga", LocalDate.of(1987, 7, 17));
-    InMemoryUserStorage userStorage = new InMemoryUserStorage();
-    UserService userService = new UserService(userStorage);
-    UserController userController = new UserController(userStorage);
+    protected User user = new User(1L,"o_kyzina@mqil.ru", "1429644", "Olga", LocalDate.of(1987, 7, 17));
+    private final UserDbStorage userStorage;
     private Validator validator;
 
     @BeforeEach
     void init() {
-        user = new User(0, "o_kyzina@mqil.ru", "1429644", "Olga", LocalDate.of(1987, 7, 17));
-        userStorage = new InMemoryUserStorage();
-        userService = new UserService(userStorage);
-        userController = new UserController(userStorage);
+        user = new User(1L,"o_kyzina@mqil.ru", "1429644", "Olga", LocalDate.of(1987, 7, 17));
         try (ValidatorFactory factory = Validation.buildDefaultValidatorFactory()) {
             this.validator = factory.getValidator();
         }
@@ -49,8 +48,8 @@ class UserControllerTest {
 
     @Test
     void test1_addNewUser() {
-        userController.create(user);
-        List<User> listUser = userController.findAll();
+        userStorage.create(user);
+        List<User> listUser = userStorage.findAll();
 
         assertEquals(1, listUser.size(), "Список User не корректный");
         assertEquals(user.getName(), listUser.get(0).getName(), "Имена не совпадают");
@@ -60,13 +59,20 @@ class UserControllerTest {
     }
 
     @Test
-    void test2_addNewUserWithFailName() {
-        user.setName("");
-        userController.create(user);
-        List<User> listUser = userController.findAll();
+    void test2_updateNewAndGetUserById() {
+        User newUser = userStorage.create(user);
+        newUser.setName("New name");
 
-        assertEquals(1, listUser.size(), "Список User не корректный");
-        assertEquals(user.getLogin(), listUser.get(0).getName(), "При пустом имени, имя не заменяется на логин");
+        userStorage.updateUser(newUser);
+
+        User newUser2 = userStorage.getUserById(newUser.getId());
+
+        assertEquals(newUser.getEmail(), newUser2.getEmail(), "Email не совпадают");
+        assertEquals(newUser.getBirthday(), newUser2.getBirthday(), "Дата рождения не совпадают");
+        assertEquals(newUser.getLogin(), newUser2.getLogin(), "Логин не совпадают");
+        assertEquals(newUser.getId(), newUser2.getId(), "Id не совпадают");
+        assertEquals(newUser.getName(), newUser2.getName(), "Имена не совпадают");
+
     }
 
     @Test
@@ -102,5 +108,5 @@ class UserControllerTest {
         assertEquals(1, massages.size(), "Проверка не корректный email не проходит");
         assertTrue(massages.contains("электронная почта не может быть пустой и должна содержать символ @"), "Неверное сообщение об ошибке");
     }
-
 }
+

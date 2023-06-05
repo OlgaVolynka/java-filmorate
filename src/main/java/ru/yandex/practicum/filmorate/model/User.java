@@ -8,13 +8,16 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Past;
 import java.time.LocalDate;
-import java.util.HashSet;
 import java.util.Objects;
-import java.util.Set;
 
 @Getter
 @Setter
 public class User {
+
+    public interface UpdateId {
+    }
+
+    @NotNull(groups = {UpdateId.class})
     private long id;
     @Email(message = "электронная почта не может быть пустой и должна содержать символ @")
     private String email;
@@ -25,23 +28,19 @@ public class User {
     @Past(message = "дата рождения не может быть в будущем")
     private LocalDate birthday;
 
-    private Set<Long> friends;
 
-    public User(long id, String email, String login, String name, LocalDate birthday) {
+    public User(Long id, String email, String login, String name, LocalDate birthday) {
+
         this.id = id;
         this.email = email;
         this.login = login;
         this.name = name;
         this.birthday = birthday;
-        this.friends = new HashSet<>();
+
     }
 
-    public void addFriend(long idFriend) {
-        friends.add(idFriend);
-    }
+    public User() {
 
-    public void removeFriend(Long idFriend) {
-        friends.remove(idFriend);
     }
 
     @Override
@@ -49,11 +48,12 @@ public class User {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
-        return id == user.id && Objects.equals(email, user.email) && Objects.equals(login, user.login) && Objects.equals(name, user.name) && Objects.equals(birthday, user.birthday) && Objects.equals(friends, user.friends);
+        return id == user.id;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, email, login, name, birthday, friends);
+        return Objects.hash(id);
     }
+
 }

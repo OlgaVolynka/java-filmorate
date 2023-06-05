@@ -8,14 +8,16 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 @Getter
 @Setter
 public class Film {
+    public interface UpdateId {
+    }
 
+    @NotNull(groups = {UpdateId.class})
     private long id;
     @NotNull(message = "название не может быть пустым")
     @NotBlank(message = "название не может быть пустым")
@@ -25,24 +27,22 @@ public class Film {
     private LocalDate releaseDate;
     @Positive(message = "продолжительность фильма должна быть положительной")
     private long duration;
+    private List<Genre> genres;
+    private Mpa mpa;
+    private Long rate;
 
-    private Set<Long> likes;
+    public Film(long id, String name, String description, LocalDate releaseDate, long duration) {
 
-    public Film(String name, String description, LocalDate releaseDate, long duration) {
-
+        this.id = id;
         this.name = name;
         this.description = description;
         this.releaseDate = releaseDate;
         this.duration = duration;
-        this.likes = new HashSet<>();
+
     }
 
-    public void addLike(long idUser) {
-        likes.add(idUser);
-    }
+    public Film() {
 
-    public void removeLike(long idUser) {
-        likes.remove(idUser);
     }
 
     @Override
@@ -50,11 +50,11 @@ public class Film {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Film film = (Film) o;
-        return id == film.id && duration == film.duration && Objects.equals(name, film.name) && Objects.equals(description, film.description) && Objects.equals(releaseDate, film.releaseDate) && Objects.equals(likes, film.likes);
+        return id == film.id;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, description, releaseDate, duration, likes);
+        return Objects.hash(id);
     }
 }

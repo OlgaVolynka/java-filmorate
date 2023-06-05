@@ -1,34 +1,28 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
-import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 
 import javax.validation.Valid;
 import java.util.Collection;
 import java.util.List;
 
+@RequiredArgsConstructor
 @RestController
 @Slf4j
 public class UserController {
 
-    private final InMemoryUserStorage inMemoryUserStorage;
+
     private final UserService userService;
-
-    @Autowired
-    public UserController(InMemoryUserStorage inMemoryUserStorage) {
-
-        this.inMemoryUserStorage = inMemoryUserStorage;
-        this.userService = new UserService(inMemoryUserStorage);
-    }
 
     @GetMapping("/users")
     public List<User> findAll() {
         log.info("Получен запрос GET users");
-        return inMemoryUserStorage.findAll();
+        return userService.findAll();
     }
 
     @PostMapping(value = "/users")
@@ -38,7 +32,7 @@ public class UserController {
     }
 
     @PutMapping("/users")
-    public User updateUser(@Valid @RequestBody User user) {
+    public User updateUser(@Validated(User.UpdateId.class) @RequestBody User user) {
         log.info("Получен запрос PUT user");
         return userService.updateUser(user);
     }
